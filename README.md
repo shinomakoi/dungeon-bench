@@ -61,9 +61,9 @@ The map uses these symbols:
 
 ### Stats Report
 
-When a run ends, the game adds a stats report to `reports/<model>/<map>.csv`. The report has: the number of moves, the number of illegal moves, the number of LLM calls, the number of tokens used, and the time. Each line in the file is one JSON object.
+When a run ends, the game adds a stats report to `reports/<model>/<map>.json`. The report has: the number of moves, the number of illegal moves, the number of LLM calls, the number of tokens used, and the time. Each line in the file is one JSON object.
 
-## Setup
+**Linux / macOS (bash):**
 
 ```bash
 python -m venv .venv
@@ -71,26 +71,47 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Configuration
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
 The game loads settings from `settings.json`. Rename the example file:
+
+**Linux / macOS (bash):**
 
 ```bash
 cp settings.json.example settings.json
 ```
 
+**Windows:**
+
+```cmd
+copy settings.json.example settings.json
+```
+
 | Key         | Description                              | Default                     |
 |-------------|------------------------------------------|-----------------------------|
 | `map_csv`   | Map file to load                         | `games/easy/easy_1.csv`     |
-| `api_url`   | URL where the game sends API requests    | `http://127.0.0.1:8935/v1/` |
+| `api_url`   | URL where the game sends API requests    | `http://127.0.0.1:8080/v1/` |
 | `model`     | Name of the model to query               | `qwen-3.8-27b`               |
 
 The game reads the API key from the `OPENAI_API_KEY` environment variable. The `OPENAI_MODEL` environment variable overrides the `model` setting.
 
-## Run the Game
+**Linux / macOS (bash):**
 
 ```bash
 export OPENAI_API_KEY=sk-...
+python game.py
+```
+
+**Windows (PowerShell):**
+
+```powershell
+$env:OPENAI_API_KEY = "sk-..."
 python game.py
 ```
 

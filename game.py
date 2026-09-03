@@ -46,6 +46,7 @@ def load_settings():
         "map_csv": "games/easy/easy_1.csv",
         "api_url": "http://127.0.0.1:8080/v1/",
         "model": "qwen-3.8-27b",
+        "reasoning_effort": "medium",
     }
     try:
         with open(os.path.join(BASE_DIR, "settings.json"), encoding="utf-8") as f:
@@ -68,6 +69,7 @@ PANEL_WIDTH = 260
 # LLM endpoint/model come from settings.json; OPENAI_MODEL env var still wins.
 LLM_API_URL = SETTINGS["api_url"]
 LLM_MODEL = os.environ.get("OPENAI_MODEL", SETTINGS["model"])
+LLM_REASONING_EFFORT = SETTINGS["reasoning_effort"]  # e.g. low / medium / high
 LLM_RETRY_MS = 1500  # pause before re-querying after a bad/failed LLM move
 MAX_ILLEGAL_MOVES = 3  # a run fails at this many illegal moves
 MAX_LLM_QUERIES = 100  # a run fails once this many LLM queries have been made
@@ -123,7 +125,6 @@ You are an expert Game AI Agent. Your goal is to navigate a 2D grid map to reach
 2. Check if you currently possess the weapon.
 3. You need a weapon to kill the monster.
 4. Identify your current target.
-5. You are limited to 64k tokens. Reach the Finish within the limit.
 
 ### Objective:
 1. Kill the monster with weapon.
@@ -145,6 +146,7 @@ USER_PROMPT_TEMPLATE = """### Current Map (markdown table):
 
 Please analyze the map and provide the next move.
 """
+# - Target: {target}
 
 LEGEND = [
     ("P", "Player (P)"),
@@ -155,7 +157,6 @@ LEGEND = [
     ("PATH", "LLM planned path"),
 ]
 CONTROLS = ["SPACE  LLM auto-play", "R      reset", "arrows/WASD  manual"]
-# - Target: {target}
 
 
 def load_grid(path):
@@ -335,13 +336,20 @@ def ask_llm(client, messages, p_row, p_col):
     # print(messages[-1]["content"])  # debug: the fresh map prompt
     try:
         response = client.chat.completions.create(
-            model=LLM_MODEL, messages=messages, reasoning_effort="high", tools=tools
+            model=LLM_MODEL,
+            messages=messages,
+            reasoning_effort=LLM_REASONING_EFFORT,
+            tools=tools,
         )
     except Exception as exc:  # network, auth, or API errors
         return ("error", str(exc)), "", "", None
     reply = response.choices[0].message
     raw = (reply.content or "").strip()
-    reasoning = (getattr(reply, "reasoning_content", None) or "").strip()
+    reasoning = (
+        getattr(reply, "reasoning_content", None)
+        or getattr(reply, "reasoning", None)
+        or ""
+    ).strip()
     usage_obj = getattr(response, "usage", None)
     usage = (
         {
@@ -531,7 +539,7 @@ def main():
                     llm_state["messages"].append(assistant_msg)
                 llm_state["result"] = result
             llm_state["busy"] = False
-
+    
         threading.Thread(target=worker, daemon=True).start()
 
     def register_illegal_move():
