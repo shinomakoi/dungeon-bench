@@ -189,16 +189,30 @@ def cell_ref_from_rc(row, col):
 
 
 def write_report(report):
-    """Append one finished run's stats to reports/<model>/<map filename>.
+    """Save one finished run's stats to reports/<model>/<map>.json.
 
-    E.g. reports/deepseek-v4-flash/easy_1.csv, one JSON object per line."""
+    The file holds a JSON array of run objects (one per finished run), so it
+    stays valid JSON as new runs are appended.
+    E.g. reports/deepseek-v4-flash/easy_1.json -> [{...}, {...}]"""
     model_dir = re.sub(r"[^A-Za-z0-9._-]", "_", report["model"])  # safe directory name
     map_name = os.path.basename(report["map"])
+    stem = os.path.splitext(map_name)[0]  # 'easy_2.csv' -> 'easy_2'
     report_dir = os.path.join(BASE_DIR, "reports", model_dir)
     os.makedirs(report_dir, exist_ok=True)
-    path = os.path.join(report_dir, map_name)
-    with open(path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(report) + "\n")
+    path = os.path.join(report_dir, stem + ".json")
+    runs = []
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                runs = data
+        except (OSError, ValueError):
+            runs = []  # unreadable/legacy content: start a fresh file
+    runs.append(report)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(runs, f, indent=2)
+        f.write("\n")
     return path
 
 
@@ -321,7 +335,7 @@ def ask_llm(client, messages, p_row, p_col):
     # print(messages[-1]["content"])  # debug: the fresh map prompt
     try:
         response = client.chat.completions.create(
-            model=LLM_MODEL, messages=messages, reasoning_effort="medium", tools=tools
+            model=LLM_MODEL, messages=messages, reasoning_effort="high", tools=tools
         )
     except Exception as exc:  # network, auth, or API errors
         return ("error", str(exc)), "", "", None
