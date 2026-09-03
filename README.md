@@ -2,6 +2,9 @@
 
 A grid dungeon game. The game uses pygame to show the grid on the screen. An LLM (Large Language Model) moves the player from the start to the finish. You see the player move on the screen. This tool tests how well different models make one decision at a time in a small game. 
 
+<img width="946" height="719" alt="screenshot" src="https://github.com/user-attachments/assets/0555b538-f821-4ff9-9e63-ac498aefe1a5" />
+
+
 ### Leaderboard
 
 | Model  | Score | 
