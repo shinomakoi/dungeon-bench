@@ -1,0 +1,5 @@
+{
+  "map_csv": "games/easy/easy_1.csv",
+  "api_url": "http://127.0.0.1:8080/v1/",
+  "model": "qwen-3.8-27b"
+}
