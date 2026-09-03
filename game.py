@@ -142,7 +142,6 @@ USER_PROMPT_TEMPLATE = """### Current Map (markdown table):
 ### Game State:
 - Current Position: {current_position}
 - Inventory: {inventory}
-- Target: {target}
 
 Please analyze the map and provide the next move.
 """
@@ -156,6 +155,7 @@ LEGEND = [
     ("PATH", "LLM planned path"),
 ]
 CONTROLS = ["SPACE  LLM auto-play", "R      reset", "arrows/WASD  manual"]
+# - Target: {target}
 
 
 def load_grid(path):
@@ -401,6 +401,13 @@ def main():
     log = []
 
     # LLM auto-play state. The client reads OPENAI_API_KEY from the environment.
+    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    has_api_key = bool(api_key)
+    if not has_api_key:
+        print(
+            "[warning] OPENAI_API_KEY is not set: LLM auto-play (SPACE) may not work. "
+            "Set it with `export OPENAI_API_KEY=...` before running."
+        )
     try:
         llm_client = openai.OpenAI(base_url=LLM_API_URL, timeout=360)
     except Exception:  # no API key / bad config -> feature is disabled
@@ -637,7 +644,10 @@ def main():
             color = WIN_COLOR if busy else TEXT_COLOR
         else:
             pygame.draw.circle(screen, MUTED_COLOR, (x + 22, y + 8), 5)
-            status, color = "Manual mode", MUTED_COLOR
+            if has_api_key:
+                status, color = "Manual mode", MUTED_COLOR
+            else:
+                status, color = "No API key", (255, 200, 60)  # warn: LLM disabled
         screen.blit(font_small.render(status, True, color), (x + 34, y))
         y += 26
 
@@ -871,9 +881,6 @@ def main():
                 "llm_query_budget": MAX_LLM_QUERIES,
                 "llm_errors": llm_stats["errors"],
                 # "total" is the API-reported total_tokens of the final call
-                # (conversation size at the end). prompt/completion are sums
-                # across all calls, so they exceed "total": each call re-sends
-                # the whole history as prompt.
                 "tokens": {
                     "total": llm_stats["api_total_tokens"],
                     "prompt": llm_stats["prompt_tokens"],

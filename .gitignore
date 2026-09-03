@@ -17,6 +17,7 @@ settings.json
 
 # Generated run reports (one file per finished LLM run)
 reports/
+games/custom/
 
 # Test / coverage
 .pytest_cache/
