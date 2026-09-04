@@ -360,7 +360,7 @@ def ask_llm(client, messages, p_row, p_col):
         if usage_obj
         else None
     )
-    print(raw)  # debug: raw model reply
+    print(">\n"+raw+"\n<")  # debug: raw model reply
     direction = parse_next_move(raw)
     if direction is None:
         return ("badmove", raw or "(empty reply)"), raw, reasoning, usage

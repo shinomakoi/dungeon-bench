@@ -7,7 +7,7 @@ A grid dungeon game. The game uses pygame to show the grid on the screen. An LLM
 
 ### Leaderboard
 
-| Model  | Score | 
+| Model  | Passed | 
 |---|---|
 | DeepSeek-V4-Pro (high) | 🥇12/12 |
 | Gemma-4-31B-it | 🥈11/12 |
@@ -15,7 +15,7 @@ A grid dungeon game. The game uses pygame to show the grid on the screen. An LLM
 | GLM-5.3-Flash (high) | 🥈11/12 |
 | Muse-Glimmer-30B (medium) | 🥉10/12 | 
 | DeepSeek-V4-Flash (high) | 🥉10/12 |
-| Granite 4.2 (full) | 8/12 |
+| Granite-4.2-8B (full) | 8/12 |
 | KAT-Coder-V2.5-Dev | 8/12 |
 | Nemotron-3.5-Lightning-30B-A3B | 5/12 | 
 
@@ -25,7 +25,7 @@ A grid dungeon game. The game uses pygame to show the grid on the screen. An LLM
 | Gemma-4-31B-it | 🥈1 |
 | Qwen-3.8-27B (medium) | 🥈1 | 
 | Muse-Glimmer-30B (medium) | 🥉2| 
-| Granite 4.2 (full) | 🥉2 |
+| Granite-4.2-8B (full) | 🥉2 |
 | Nemotron-3.5-Lightning-30B-A3B | 7 | 
 | GLM-5.3-Flash (high) | 8 |
 | KAT-Coder-V2.5-Dev | 10 |
